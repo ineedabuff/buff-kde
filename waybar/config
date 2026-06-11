@@ -15,22 +15,19 @@
   // ── Modules Layout ───────────────────────────────────────────────
   "modules-left": [
     "clock",
-    "custom/power",
+    "custom/weather",
     "network",
     "custom/bt-status",
-    "custom/microphone",
-    "custom/vpn"
+    "custom/media"
   ],
 
-  "modules-center": [
-    "custom/workspace-1",
-    "custom/workspace-2",
-    "custom/asus-profile",
-    "custom/workspace-3",
-    "custom/workspace-4"
-  ],
+  "modules-center": [],
 
   "modules-right": [
+    "custom/workspace-1",
+    "custom/workspace-2",
+    "custom/workspace-3",
+    "custom/workspace-4",
     "custom/battery",
     "custom/volume",
     "custom/brightness"
@@ -38,25 +35,24 @@
 
   // ── Clock ────────────────────────────────────────────────────────
   "clock": {
+    "locale": "fr_FR.UTF-8",
     "tooltip-format": "{calendar}",
-    "format-alt": "  {:%a, %d %b %Y}",
-    "format": "[   {:%I:%M %p} ]"
+    "format": "[   {:L%H:%M  •  %A %d %B %Y} ]"
   },
 
   // ── Network ──────────────────────────────────────────────────────
   "network": {
-    "format-wifi": "{icon}",
+    "format-wifi": "{icon}  {ipaddr}",
     "format-icons": ["[ 󰤯 ]", "[ 󰤟 ]", "[ 󰤢 ]", "[ 󰤥 ]", "[ 󰤨 ]"],
-    "format-ethernet": "󰀂",
-    "format-alt": "󱛇",
+    "format-ethernet": "󰀂  {ipaddr}",
+    "format-alt": "󱛇  {ipaddr}",
     "format-disconnected": "󰖪",
-    "tooltip-format-wifi": "{icon} {essid}\n⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}",
-    "tooltip-format-ethernet": "󰀂  {ifname}\n⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}",
+    "tooltip-format-wifi": "{icon} {essid}  ({signalStrength}%)\n {ipaddr}/{cidr}\n⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}",
+    "tooltip-format-ethernet": "󰀂  {ifname}   {ipaddr}\n⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}",
     "tooltip-format-disconnected": "Disconnected",
-    "on-click": "nm-connection-editor",
+    "on-click": "kcmshell6 kcm_networkmanagement",
     "on-click-right": "~/.config/waybar/scripts/wifi-menu.sh",
-    "interval": 5,
-    "nospacing": 1
+    "interval": 5
   },
 
   // ── Keyboard ─────────────────────────────────────────────────────
@@ -77,23 +73,12 @@
     "tooltip": true
   },
 
-  "custom/asus-profile": {
-    "exec": "~/.config/waybar/scripts/asus-profile.sh",
-    "interval": 3,
-    "format": "{}",
-    "markup": "pango",
-    "tooltip": true,
-    "tooltip-format": "Left: Switch GPU mode",
-    "on-click": "~/.config/waybar/scripts/asus-gpu-switch.sh"
-  },
-
-
   // ── Battery (scripted + built-in) ────────────────────────────────
   "custom/battery": {
     "exec": "~/.config/waybar/scripts/battery.sh",
     "return-type": "json",
     "interval": 10,
-    "on-click": "xfce4-power-manager-settings"
+    "on-click": "kcmshell6 powerdevilprofilesconfig"
   },
 
 
@@ -114,15 +99,6 @@
       "critical": 10
     },
     "tooltip": true
-  },
-
-  // ── Microphone ───────────────────────────────────────────────────
-  "custom/microphone": {
-    "exec": "~/.config/waybar/scripts/mic.sh",
-    "interval": 1,
-    "tooltip": true,
-    "tooltip-format": "Mic Toggle",
-    "on-click": "pactl set-source-mute @DEFAULT_SOURCE@ toggle"
   },
 
   // ── Brightness ───────────────────────────────────────────────────
@@ -184,23 +160,27 @@
   },
 
 
-  "custom/vpn": {
-    "exec": "~/.config/waybar/scripts/protonvpn-status.sh",
-    "return-type": "json",
-    "interval": 5,
-    "on-click": "~/.config/waybar/scripts/protonvpn-toggle.sh",
-    "on-click-right": "~/.config/waybar/scripts/vpn-countries.sh",
+  // ── Media (lecture en cours — MPRIS via playerctl) ───────────────
+  "custom/media": {
+    "exec": "~/.config/waybar/scripts/media.sh",
+    "interval": 2,
     "format": "{}",
     "markup": "pango",
-    "tooltip": true
+    "tooltip": true,
+    "tooltip-format": "Clic : lecture / pause\nMolette : piste suivante / précédente",
+    "on-click": "playerctl play-pause",
+    "on-scroll-up": "playerctl next",
+    "on-scroll-down": "playerctl previous"
   },
 
-  // ── Power ────────────────────────────────────────────────────────
-  "custom/power": {
-    "format": "[ 󰤆 ]",
+  // ── Weather (wttr.in — Montréal) ─────────────────────────────────
+  "custom/weather": {
+    "exec": "~/.config/waybar/scripts/weather.sh",
+    "return-type": "json",
+    "interval": 1800,
+    "format": "{}",
     "tooltip": true,
-    "tooltip-format": "Power Menu",
-    "on-click": "~/.config/waybar/scripts/powermenu.sh"
+    "on-click": "xdg-open https://wttr.in/Montreal"
   },
 
   // ── Spacer ───────────────────────────────────────────────────────

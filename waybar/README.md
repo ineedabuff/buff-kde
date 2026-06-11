@@ -1,13 +1,13 @@
 # Waybar sur KDE Plasma Wayland
 ```
- Conçu pour Kubuntu 26.04 / Ubuntu - KDE Plasma 6 (KWin Wayland)
+ Conçu pour Debian 13 / Kubuntu 26.04 / Ubuntu 26.04 - KDE Plasma 6 (KWin Wayland)
 ```
 
 ## C'est quoi ?
 
 La plupart des dotfiles Waybar sont faits pour Hyprland. Ici, c'est une configuration Waybar entièrement personnalisée qui tourne sous **KDE Plasma Wayland** : tu obtiens le look d'un bureau Hyprland fortement « ricé » tout en gardant la commodité de KDE (installation d'applis facile, widgets Plasma, meilleure autonomie, stabilité).
 
-Inspiré du rice Arch/Hyprland de PewDiePie, mais reconstruit de zéro pour KDE. Cette branche est adaptée pour **Kubuntu 26.04 / Ubuntu** (apt à la place de pacman) et Plasma 6.
+Inspiré du rice Arch/Hyprland de PewDiePie, mais reconstruit de zéro pour KDE, adapté pour **Debian 13 / Kubuntu 26.04 / Ubuntu 26.04** (apt à la place de pacman) et Plasma 6, puis personnalisé (météo, horloge française, couleurs sur mesure).
 
 ---
 
@@ -15,99 +15,93 @@ Inspiré du rice Arch/Hyprland de PewDiePie, mais reconstruit de zéro pour KDE.
 
 La barre est divisée en trois sections :
 
-**Gauche :** Horloge → Menu d'extinction → Réseau → Bluetooth → Micro → Média
+**Gauche :** Horloge → Météo → Réseau → Bluetooth → Média
 
-**Centre :** Bureau 1 → Bureau 2 → Mode GPU → Bureau 3 → Bureau 4
+**Centre :** *(vide)*
 
-**Droite :** Batterie → Volume → Luminosité
+**Droite :** Bureau 1 → Bureau 2 → Bureau 3 → Bureau 4 → Batterie → Volume → Luminosité
 
 ---
 
 ## Fonctionnalités
 
 ### Horloge
-Heure au format 24 h (`HH:MM`). Le clic gauche bascule vers la date complète (`jour, JJ mois AAAA`) ; l'infobulle affiche un calendrier.
+Heure au format **24 h** suivie de la **date complète en français** : `HH:MM  •  mercredi 10 juin 2026`. La couleur est forcée en `#ddff24`. L'infobulle affiche un calendrier.
+
+> La date en français nécessite une locale FR générée sur le système (`fr_FR.UTF-8`) **et** le drapeau `L` dans le format (`{:L%H:%M …}`, déjà en place). Voir [Locale française](#locale-française-pour-la-date) si la date reste en anglais.
+
+### Météo
+Affiche la météo de ta localisation (par défaut **Montréal**) via `wttr.in`.
+- **La barre affiche** : une **icône dynamique** selon les conditions (soleil ☀ le jour / lune ☾ la nuit, nuageux, pluie, neige, brouillard, couvert, orage) suivie de la **température** en °C.
+- Couleur forcée en `#ddff24` ; en cas d'absence de réseau, repli discret (`N/A`) en rouge.
+- Se met à jour toutes les 30 minutes (wttr.in limite les requêtes fréquentes).
+- **Clic gauche** : ouvre la météo détaillée dans le navigateur.
+- Les icônes sont générées par codepoint Unicode (jeu Material Design, comme les icônes wifi/volume) pour éviter toute perte de glyphe.
+
+> Nécessite `curl` et `python3` (présents par défaut sur Kubuntu).
 
 ### Bureaux (workspaces)
-Des scripts personnalisés remplacent le `hyprctl` de Hyprland par l'interface DBus `qdbus6` de KDE. Chaque bureau affiche un chiffre télougou (`1 2 3 4`) quand il est inactif, et un cercle plein (`⬤`) orange quand il est actif. Un clic change de bureau. Les UUID sont propres à KDE et doivent être mis à jour sur une nouvelle installation (voir plus bas).
+Des scripts personnalisés remplacent le `hyprctl` de Hyprland par l'interface DBus `qdbus6` de KDE. Chaque bureau affiche `[1] [2] [3] [4]` quand il est inactif (cyan `#56b6c2`), et un cercle plein `[●]` en `#ddff24` quand il est actif. Un clic change de bureau. Les UUID sont propres à KDE et doivent être mis à jour sur une nouvelle installation (voir plus bas).
 
 > **Note Ubuntu :** sur Kubuntu, le binaire Qt6 `qdbus` est fourni par le paquet `qdbus-qt6`, mais il **ne s'appelle pas** `qdbus6` et **n'est pas** dans ton `PATH`. L'installeur crée un lien `/usr/local/bin/qdbus6` pour que les scripts de bureaux et le watcher fonctionnent. Sans ça, les bureaux restent vides.
 
 ### Animation de glissement
-Quand tu changes de bureau, Waybar redémarre et glisse depuis le haut comme un rideau. Un script « watcher » interroge KWin toutes les 150 ms, avec une vérification de stabilisation de 150 ms : si tu changes rapidement de bureau, il attend que tu t'arrêtes avant de redémarrer. Ça évite les saccades tout en gardant l'animation réactive.
+Quand tu changes de bureau, Waybar se **recharge** (signal `SIGUSR2`) et rejoue l'animation de rideau depuis le haut. Un script « watcher » interroge KWin toutes les 150 ms et ne réagit **qu'à un vrai changement de bureau virtuel** (avec une vérification de stabilisation de 150 ms) — fermer ou déplacer une fenêtre ne déclenche donc plus rien.
 
-> **Tu ne veux pas l'animation ?** Désactive simplement le service watcher et lance Waybar normalement : tout le reste continue de fonctionner parfaitement.
+> **Pourquoi `SIGUSR2` ?** L'ancienne version tuait puis relançait Waybar, ce qui pouvait faire disparaître la barre (par ex. en fermant une appli). Le rechargement par signal recrée la fenêtre sans jamais quitter le process : la barre ne peut plus rester éteinte.
+
+> **Tu ne veux pas l'animation ?** Désactive le service watcher :
 > ```bash
-> systemctl --user disable waybar-watcher.service
-> systemctl --user stop waybar-watcher.service
-> waybar &
+> systemctl --user disable --now waybar-watcher.service
 > ```
 
 ### Protection contre la rémanence OLED
-Sur un écran OLED, les éléments statiques (comme une barre toujours visible) peuvent causer une rémanence (« burn-in ») avec le temps. Le watcher redémarre Waybar à chaque changement de bureau : la barre disparaît puis réapparaît brièvement, ce qui fait naturellement « tourner » les pixels situés sous la barre. Combiné à l'animation de glissement, la barre ne reste jamais complètement statique trop longtemps. Si tu n'es **pas** sur OLED, tu peux désactiver ce comportement comme ci-dessus.
+Sur un écran OLED, les éléments statiques (comme une barre toujours visible) peuvent causer une rémanence (« burn-in »). Le rechargement de la barre à chaque changement de bureau fait brièvement « tourner » les pixels situés dessous. Si tu n'es **pas** sur OLED, tu peux désactiver le watcher comme ci-dessus.
 
 ### Média (lecture en cours)
-Remplace l'ancien module ProtonVPN. Lit la lecture de n'importe quel lecteur compatible MPRIS via `playerctl`.
-- **La barre affiche** : icône du lecteur + icône lecture/pause + `Artiste — Titre` (ex. `  Daft Punk — Get Lucky`)
+Lit la lecture de n'importe quel lecteur compatible MPRIS via `playerctl`.
+- **La barre affiche** : icône du lecteur + icône lecture/pause + `Artiste — Titre`
 - Donne la priorité à **Spotify** s'il tourne, sinon revient au lecteur actif le plus récent (navigateurs, VLC, mpv, etc.)
 - Se masque automatiquement quand rien ne joue
-- **Clic gauche** : lecture / pause
-- **Molette vers le haut** : piste suivante
-- **Molette vers le bas** : piste précédente
-- Les titres longs sont tronqués ; les titres contenant `& < >` sont correctement échappés
+- **Clic gauche** : lecture / pause — **Molette** : piste suivante / précédente
+- Les titres longs sont tronqués ; les caractères `& < >` sont correctement échappés
 
-> Nécessite `playerctl` (installé par le script). Spotify expose MPRIS nativement ; pour Firefox, active `media.hardwaremediakeys.enabled` dans `about:config` si les commandes ne répondent pas.
+> Nécessite `playerctl`. Spotify expose MPRIS nativement ; pour Firefox, active `media.hardwaremediakeys.enabled` dans `about:config` si les commandes ne répondent pas.
 
 ### Bluetooth
 - **La barre affiche** : icône du type d'appareil + nom court + % de batterie avec icône colorée
   - Vert = au-dessus de 50 %, Orange = 20–50 %, Rouge = en dessous de 20 %
   - Icônes : casque `󰋋`, souris `󰍽`, clavier `󰌌`, téléphone `󰄜`, enceinte `󰓃`
-- **Clic gauche** : active/désactive le Bluetooth et reconnecte automatiquement les appareils appairés
-- **Clic droit** : sélecteur rofi listant tous les appareils appairés avec leur icône de type
-- **Infobulle** : liste tous les appareils connectés et appairés avec leur niveau de batterie
+- **Clic gauche** : active/désactive le Bluetooth et reconnecte les appareils appairés
+- **Clic droit** : sélecteur rofi des appareils appairés
+- **Infobulle** : appareils connectés et appairés avec leur niveau de batterie
 
 ### Wi‑Fi / Réseau
-- **La barre affiche** : l'icône de signal Wi‑Fi (`󰤨 󰤥 󰤢 󰤟 󰤯`) **suivie de l'adresse IP** courante (en filaire : l'icône ethernet + l'IP)
+- **La barre affiche** : l'icône de signal Wi‑Fi (`󰤨 󰤥 󰤢 󰤟 󰤯`) **suivie de l'adresse IP** (en filaire : l'icône ethernet + l'IP)
 - **Clic gauche** : ouvre les réglages réseau de KDE (`kcmshell6 kcm_networkmanagement`)
-- **Clic droit** : ouvre un sélecteur de réseaux rofi trié par force du signal
-  - Clic sur un réseau connu → connexion immédiate
-  - Clic sur un réseau inconnu → invite de mot de passe
-  - Clic sur le réseau connecté → déconnexion
-- **Infobulle** : SSID, force du signal, IP/CIDR, et débits descendant/montant
+- **Clic droit** : sélecteur de réseaux rofi trié par force du signal (connexion, invite de mot de passe, déconnexion)
+- **Infobulle** : SSID, force du signal, IP/CIDR, débits descendant/montant
+
+### Volume
+- **La barre affiche** : icône de volume + barre ASCII + pourcentage
+- **Couleur selon le niveau** : `0–30 %` vert `#4bff21`, `31–45 %` jaune `#ddff24`, `46–100 %` rouge `#f50a1c`
+- **Clic gauche** : couper/rétablir le son — **Clic droit** : sélecteur de sortie audio rofi — **Molette** : ±5 %
+
+### Batterie
+- **La barre affiche** : icône + barre ASCII + pourcentage avec seuils colorés
+- **Clic gauche** : ouvre les réglages d'énergie de KDE (`kcmshell6 powerdevilprofilesconfig`)
+- **Infobulle** : état de charge, temps restant, puissance de décharge (watts), tension
+- Détecte automatiquement le chemin de la batterie (BAT0, BAT1, …) et ignore les batteries non-portable
 
 ### Luminosité
 Un seul module qui passe d'un écran à l'autre avec le **clic gauche** :
 - 💻 **Écran du portable** (`intel_backlight`) : molette pour ajuster
 - 🖥️ **Écran externe** (DDC/CI via `ddcutil`) : molette pour ajuster
-- ⌨️ **Rétroéclairage du clavier** (`asus::kbd_backlight`, niveaux : Off/Low/Mid/High) : molette pour ajuster
+- ⌨️ **Rétroéclairage du clavier** (ASUS uniquement, `asus::kbd_backlight`) : molette pour ajuster
 
-**Clic droit** : ouvre le sélecteur de modes aura du clavier (couleur fixe, respiration, vague arc-en-ciel, cycle arc-en-ciel, pulsation).
+**Clic droit** : sélecteur de modes aura du clavier (ASUS).
 
-> La luminosité de l'écran externe nécessite la prise en charge DDC/CI et l'utilisateur dans le groupe `i2c`.
-> Si ton écran ne gère pas le DDC, seules la luminosité du portable et du clavier fonctionneront.
-
-### Volume
-- **La barre affiche** : icône de volume + barre ASCII + pourcentage
-- **Clic gauche** : couper/rétablir le son
-- **Clic droit** : sélecteur de sortie audio rofi (casque, enceintes, HDMI… déplace tous les flux actifs instantanément)
-- **Molette** : volume +/- par pas de 5 %
-
-### Batterie
-- **La barre affiche** : icône de batterie + barre ASCII + pourcentage avec seuils colorés (cyan/orange/rouge)
-- **Clic gauche** : ouvre les réglages d'énergie de KDE (`kcmshell6 powerdevilprofilesconfig`)
-- **Infobulle** : état de charge, temps restant (décharge/charge), puissance de décharge (watts), tension
-- Détecte automatiquement le chemin de la batterie (BAT0, BAT1, etc.) et ignore les batteries non-portable (ex. une souris Bluetooth)
-
-### Mode GPU SuperGFX (ASUS uniquement)
-- **La barre affiche** : le mode GPU courant : `[ IGP ]` (intégré), `[ HYB ]` (hybride), `[ dGPU ]` (MUX)
-- **Clic gauche** : sélecteur rofi pour changer de mode
-- Nécessite `supergfxctl`/`asusctl`, qui **ne sont pas packagés sur Ubuntu**. Sur une machine non-ASUS (ou sans ces outils), le module reste simplement inactif — voir [Retirer le module GPU](#retirer-le-module-gpu-asus).
-
-### Micro
-- **Clic gauche** : couper/rétablir le micro par défaut via `pactl`
-
-### Menu d'extinction
-- **Clic gauche** : ouvre un menu d'extinction rofi via `powermenu.sh`
+> La luminosité de l'écran externe nécessite le DDC/CI et l'utilisateur dans le groupe `i2c`. Sans écran DDC, seuls le portable (et le clavier ASUS) fonctionnent.
 
 ---
 
@@ -122,8 +116,6 @@ Un seul module qui passe d'un écran à l'autre avec le **clic gauche** :
 ├── waybar-watcher.service          # Service systemd pour le watcher d'animation
 ├── README.md
 └── scripts/
-    ├── asus-gpu-switch.sh          # Sélecteur de mode GPU SuperGFX (ASUS)
-    ├── asus-profile.sh             # État du mode GPU SuperGFX (ASUS)
     ├── audio-switcher.sh           # Sélecteur de sortie audio rofi
     ├── battery.sh                  # État batterie avec barre ASCII
     ├── bluetooth-menu.sh           # Sélecteur d'appareils Bluetooth rofi
@@ -133,12 +125,11 @@ Un seul module qui passe d'un écran à l'autre avec le **clic gauche** :
     ├── brightness-scroll-up.sh     # Monter la luminosité de l'écran actif
     ├── brightness-toggle-display.sh # Cycle portable/écran externe/clavier
     ├── brightness.sh               # État de luminosité de l'écran actif
-    ├── kbd-aura.sh                 # Sélecteur de modes/couleurs aura clavier
+    ├── kbd-aura.sh                 # Sélecteur de modes/couleurs aura clavier (ASUS)
     ├── media.sh                    # Module lecture en cours (MPRIS via playerctl)
-    ├── mic.sh                      # État de coupure du micro
-    ├── powermenu.sh                # Menu d'extinction rofi
-    ├── volume.sh                   # État volume avec barre ASCII
-    ├── waybar-watcher.sh           # Watcher de changement de bureau KWin
+    ├── volume.sh                   # État volume (barre ASCII + couleur par niveau)
+    ├── weather.sh                  # Module météo (wttr.in, icône dynamique)
+    ├── waybar-watcher.sh           # Watcher de changement de bureau KWin (SIGUSR2)
     ├── wifi-menu.sh                # Sélecteur de réseaux Wi‑Fi rofi
     └── workspaces/
         ├── switch.sh               # Basculer vers un bureau KWin donné
@@ -148,7 +139,7 @@ Un seul module qui passe d'un écran à l'autre avec le **clic gauche** :
         └── workspace-4.sh          # État du bureau 4 (KWin)
 ```
 
-> Les anciens scripts `protonvpn-status.sh`, `protonvpn-toggle.sh` et `vpn-countries.sh` ne sont plus utilisés et peuvent être supprimés.
+> Modules retirés par rapport à l'origine : **menu d'extinction**, **micro** et **mode GPU SuperGFX**. Les scripts devenus inutiles peuvent être supprimés : `powermenu.sh`, `mic.sh`, `asus-profile.sh`, `asus-gpu-switch.sh`, ainsi que les anciens `protonvpn-*.sh` et `vpn-countries.sh`.
 
 ---
 
@@ -160,7 +151,7 @@ sudo apt update
 sudo apt install -y waybar brightnessctl ddcutil rofi network-manager \
                     pipewire wireplumber pipewire-pulse pulseaudio-utils \
                     bluez upower playerctl qdbus-qt6 kde-cli-tools \
-                    fontconfig curl unzip
+                    fontconfig curl unzip python3 language-pack-fr
 ```
 
 Ajoute-toi au groupe `i2c` pour la luminosité de l'écran externe (DDC) :
@@ -169,9 +160,9 @@ sudo usermod -aG i2c $USER
 sudo modprobe i2c-dev
 ```
 
-**Polices :** la barre utilise JetBrainsMono Nerd Font, qui n'est pas dans apt. L'installeur la télécharge automatiquement depuis [nerd-fonts](https://github.com/ryanoasis/nerd-fonts) ; pour le faire à la main, place la police dans `~/.local/share/fonts/` puis lance `fc-cache -f`.
+**Polices :** la barre utilise JetBrainsMono Nerd Font, absente d'apt. L'installeur la télécharge depuis [nerd-fonts](https://github.com/ryanoasis/nerd-fonts) ; à la main : place la police dans `~/.local/share/fonts/` puis lance `fc-cache -f`.
 
-**`qdbus6` :** fourni par `qdbus-qt6`. Sur Ubuntu, le binaire se trouve hors du `PATH` ; crée donc le lien que fait l'installeur :
+**`qdbus6` :** fourni par `qdbus-qt6`, mais hors du `PATH` sur Ubuntu ; crée le lien que fait l'installeur :
 ```bash
 sudo ln -sf /usr/lib/qt6/bin/qdbus /usr/local/bin/qdbus6
 ```
@@ -180,20 +171,21 @@ sudo ln -sf /usr/lib/qt6/bin/qdbus /usr/local/bin/qdbus6
 
 ## Installation
 
-### 1. Cloner le dépôt
+### 1. Cloner et copier
 ```bash
 git clone https://github.com/prudhvibungatavula/socrates-KDE ~/socrates-KDE
 cp -r ~/socrates-KDE/waybar ~/.config/waybar
 ```
 
 ### 2. Lancer l'installeur (recommandé)
-Il gère les dépendances, le lien `qdbus6`, la police Nerd Font, la détection batterie/rétroéclairage, et les services systemd :
+Gère les dépendances, le lien `qdbus6`, la police, la détection batterie/rétroéclairage et les services systemd :
 ```bash
 chmod +x ~/.config/waybar/install.sh
 ~/.config/waybar/install.sh
 ```
 
-### 3. Rendre les scripts exécutables (installation manuelle)
+### 3. Rendre les scripts exécutables
+**Étape importante** — à refaire chaque fois que tu remplaces un script (la copie perd souvent le bit exécutable) :
 ```bash
 chmod +x ~/.config/waybar/scripts/*.sh
 chmod +x ~/.config/waybar/scripts/workspaces/*.sh
@@ -206,18 +198,24 @@ qdbus6 --literal org.kde.KWin /VirtualDesktopManager \
   org.freedesktop.DBus.Properties.Get \
   org.kde.KWin.VirtualDesktopManager desktops
 ```
-Mets à jour l'UUID dans chaque `scripts/workspaces/workspace-*.sh` et dans les lignes `on-click` du `config`.
+Mets à jour l'UUID dans chaque `scripts/workspaces/workspace-*.sh`.
 
-### 5. Installer les services systemd (optionnel mais recommandé)
+### 5. Générer la locale française (pour l'horloge)
+```bash
+sudo locale-gen fr_FR.UTF-8
+sudo update-locale
+```
+Vérifie avec `locale -a | grep -i fr` (tu devrais voir `fr_FR.utf8`).
+
+### 6. Installer les services systemd (optionnel mais recommandé)
 ```bash
 cp ~/.config/waybar/waybar.service ~/.config/systemd/user/
 cp ~/.config/waybar/waybar-watcher.service ~/.config/systemd/user/
 systemctl --user daemon-reload
-systemctl --user enable waybar.service waybar-watcher.service
-systemctl --user start waybar.service waybar-watcher.service
+systemctl --user enable --now waybar.service waybar-watcher.service
 ```
 
-### 6. Ou lancer manuellement
+### 7. Ou lancer manuellement
 ```bash
 waybar &
 ```
@@ -228,40 +226,49 @@ waybar &
 
 ## Configuration
 
-### Désactiver l'animation des bureaux (hors OLED)
+### Locale française pour la date
+Si la date s'affiche en anglais, c'est que la locale FR n'est pas générée. Lance les commandes de l'étape 5, puis recharge Waybar (`killall waybar; waybar &`). Au Québec tu as peut-être `fr_CA.UTF-8` : dans ce cas mets cette valeur dans la ligne `"locale"` du module `clock` (les noms de jours/mois sont identiques).
+
+### Changer la ville de la météo
+Édite `scripts/weather.sh` et modifie la ligne :
 ```bash
-systemctl --user disable waybar-watcher.service
-systemctl --user stop waybar-watcher.service
+LOC="Montreal"   # ville, code postal ou aéroport
 ```
-Waybar restera lancé en permanence sans redémarrer.
+
+### Désactiver l'animation des bureaux
+```bash
+systemctl --user disable --now waybar-watcher.service
+```
+Waybar restera lancé en permanence sans se recharger.
 
 ### Choisir le lecteur média suivi par la barre
-Par défaut, `media.sh` privilégie Spotify puis revient au lecteur le plus récent. Pour le fixer sur un lecteur précis, édite `scripts/media.sh` et force le nom du lecteur :
+Par défaut `media.sh` privilégie Spotify puis le lecteur le plus récent. Pour le fixer, édite `scripts/media.sh` :
 ```bash
 player="firefox"   # à la place du bloc de détection automatique
 ```
-Lance `playerctl -l` pour lister les lecteurs disponibles.
-
-### Retirer le module GPU (ASUS)
-Si tu n'es pas sur un portable ASUS, retire `"custom/asus-profile"` de `modules-center` dans `config` (le centre ne contient alors plus que les quatre bureaux).
+(`playerctl -l` liste les lecteurs disponibles.)
 
 ### Désactiver la luminosité de l'écran externe
-Si tu n'as pas d'écran compatible DDC, édite `brightness-toggle-display.sh` et supprime le cas `monitor` : le cycle se fera entre portable et clavier seulement.
+Édite `brightness-toggle-display.sh` et supprime le cas `monitor` : le cycle se fera entre portable et clavier seulement.
 
-### Changer les couleurs aura du clavier
-Édite `kbd-aura.sh` pour ajouter ou retirer des couleurs de la palette (valeurs hexa standard, ex. `ff00ff`).
+### Personnalisation des couleurs
+- **Horloge, météo, bureau actif** : `#ddff24` (dans `style.css` pour `#clock`/`#custom-weather`, dans `workspaces/workspace-*.sh` pour le `[●]` actif)
+- **Volume** : seuils dans `scripts/volume.sh` (`#4bff21` / `#ddff24` / `#f50a1c`)
+- Les couleurs forcées au survol sont gérées par des règles `#clock:hover` / `#custom-weather:hover` (GTK n'accepte pas `!important`).
 
 ---
 
 ## Notes
 
-- Les UUID des bureaux changent à chaque nouvelle installation de KDE : pense à les mettre à jour
-- Sur Ubuntu, `qdbus6` n'est pas dans le `PATH` par défaut : l'installeur ajoute le lien `/usr/local/bin/qdbus6`
-- `supergfxctl`/`asusctl` ne sont pas dans les dépôts Ubuntu : compile-les ou utilise un PPA si tu as besoin du changement de GPU
-- Testé sur KDE Plasma 6 avec KWin Wayland (Kubuntu 26.04)
+- Les UUID des bureaux changent à chaque nouvelle installation de KDE : pense à les mettre à jour.
+- Sur Ubuntu, `qdbus6` n'est pas dans le `PATH` par défaut : l'installeur ajoute le lien `/usr/local/bin/qdbus6`.
+- La date française nécessite la locale `fr_FR.UTF-8` (ou `fr_CA.UTF-8`) générée **et** le drapeau `L` dans le format de l'horloge.
+- Les icônes (météo, etc.) sont des glyphes Nerd Font / Material Design : assure-toi que **JetBrainsMono Nerd Font** est installée, sinon elles apparaissent en carrés.
+- Le rétroéclairage et l'aura du clavier ne concernent que les portables **ASUS** ; le reste fonctionne sur n'importe quel matériel.
+- Testé sur KDE Plasma 6 avec KWin Wayland (Kubuntu 26.04).
 
 ---
 
 ## Crédits
 
-Structure de configuration inspirée de [pewdiepie-archdaemon/dionysus](https://github.com/pewdiepie-archdaemon/dionysus) : tous les scripts réécrits pour KDE Plasma Wayland, puis portés sur Kubuntu/Ubuntu.
+Structure de configuration inspirée de [pewdiepie-archdaemon/dionysus](https://github.com/pewdiepie-archdaemon/dionysus) : scripts réécrits pour KDE Plasma Wayland, portés sur Debian/Ubuntu, puis personnalisés.
