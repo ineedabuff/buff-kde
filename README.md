@@ -1,139 +1,210 @@
-# socrates-KDE
+# buff-KDE
 
 ```
- A complete KDE Plasma Wayland rice
- Built on CachyOS — ASUS Zephyrus G16 2024
-```
-
----
-
-## The Story
-
-I have an ASUS Zephyrus G16 2024 — an OLED laptop with an Intel iGPU, an NVIDIA dGPU, and an ASUS MUX switch. When I got into Linux ricing, everything I found online was for Hyprland. The dotfiles, the guides, the YouTube videos — all Hyprland. Nobody was documenting how to do any of this on KDE Plasma Wayland.
-
-I didn't want to switch to Hyprland. KDE gives me things Hyprland doesn't — stable app installs, Plasma widgets, better battery life out of the box, and a proper settings GUI when I need it. But I still wanted my desktop to look and feel like a proper rice. Inspired by PewDiePie's Arch/Hyprland setup, I decided to figure it out myself.
-
-The OLED screen added another problem. Static UI elements sitting in the same position for hours cause burn-in on OLED panels. I couldn't find a single documented solution for preventing Waybar burn-in on KDE Wayland. So I built one myself — a watcher script that restarts Waybar on every workspace switch, cycling the pixels under the bar and preventing any static retention. It doubles as a slide-down animation trigger, so the bar drops from the top every time you switch desktops.
-
-Everything in this repo was figured out from scratch. No existing dotfiles worked out of the box for this setup.
-
----
-
-## What this repo contains
-
-```
-socrates-KDE/
-├── waybar/          Custom Waybar bar with full script suite
-├── klassy/          Klassy window decoration config
-├── krohnkite/       KWin tiling script
-├── kde/             KDE global configs
-├── themes/          Color schemes and GTK settings
-├── wallpapers/      Wallpapers used in the setup
-└── README.md        This file
+Un rice KDE Plasma Wayland complet
+Conçu sur Kubuntu 26.04 — ASUS Vivobook V16 2025
 ```
 
 ---
 
-## Screenshots
+## L'histoire
 
-<img width="2559" height="1599" alt="main screen" src="https://github.com/user-attachments/assets/80abfce2-f28c-4c15-a0df-d3c88a8d44f1" />
+Je tourne sous Kubuntu sur un ASUS Vivobook V16 (2025). Quand je me suis mis au
+ricing sous Linux, presque tout ce que je trouvais en ligne était fait pour
+Hyprland — les dotfiles, les guides, les vidéos YouTube. Quasiment personne ne
+documentait comment obtenir le même rendu sous **KDE Plasma Wayland**, et encore
+moins sur une base Debian/Ubuntu plutôt qu'Arch.
 
-<img width="2559" height="1439" alt="2026-06-01_15-34" src="https://github.com/user-attachments/assets/0b880326-1ada-4739-b325-500873c9ab0b" />
+Je ne voulais pas quitter KDE. Il m'apporte des choses sur lesquelles je compte :
+installation d'applis stable via `apt`, widgets Plasma, bonne autonomie d'origine,
+et une vraie interface de réglages quand j'en ai besoin. Mais je voulais quand
+même que mon bureau ait l'allure d'un vrai rice. Inspiré par le setup Arch/Hyprland
+de PewDiePie, j'ai décidé de reconstruire ce style moi-même sur Kubuntu.
 
-<img width="2559" height="62" alt="maybar all off" src="https://github.com/user-attachments/assets/c0154d46-cdca-4c7a-9f88-9f07834469a8" />
+L'écran OLED a ajouté un autre problème. Les éléments d'interface statiques qui
+restent au même endroit pendant des heures provoquent une rémanence (« burn-in »)
+sur les dalles OLED. Je n'ai trouvé aucune solution documentée pour empêcher la
+rémanence de Waybar sous KDE Wayland, alors j'en ai construit une — un script
+« watcher » qui redémarre Waybar à chaque changement de bureau, ce qui fait
+tourner les pixels sous la barre et évite la rétention statique. Il sert aussi de
+déclencheur d'animation : la barre glisse depuis le haut à chaque changement de
+bureau.
 
-<img width="2558" height="64" alt="maybar all on" src="https://github.com/user-attachments/assets/1d476eae-c8d1-4387-9837-2ec4ef371b66" />
-
+L'essentiel a dû être adapté de zéro. Les dotfiles Arch/AUR que je trouvais ne
+fonctionnaient pas tels quels sur Kubuntu, donc tout ce qui n'existait que dans
+l'AUR a dû être compilé depuis les sources ou remplacé par un équivalent `apt`.
 
 ---
 
-## Theme Stack
+## Contenu du dépôt
 
-| Component         | Value                        |
-|-------------------|------------------------------|
-| OS                | CachyOS (Arch-based)         |
-| Desktop           | KDE Plasma 6 on Wayland      |
-| Bar               | Waybar                       |
-| Window decoration | Klassy                       |
-| Color scheme      | Main (included in repo)      |
-| Plasma theme      | Sweet                        |
-| Icons             | Papirus-Dark                 |
-| Font              | JetBrains Mono Medium 11     |
-| Cursor            | capitaine-cursors-light      |
-| Tiling            | Krohnkite (KWin script)      |
-| Terminal          | Konsole                      |
+```
+buff-kde/
+├── HackerCyan-Spicetify-main/   Thème Spotify HackerCyan (Spicetify)
+├── waybar/                      Barre Waybar personnalisée + suite de scripts
+├── klassy/                      Config de décoration de fenêtres Klassy
+├── krohnkite/                   Script de tiling KWin
+├── kde/                         Configs globales KDE
+├── themes/                      Schémas de couleurs et réglages GTK
+├── wallpapers/                  Fonds d'écran utilisés dans le setup
+└── README.md                    Ce fichier
+```
+
+---
+
+## Composants
+
+| Composant              | Valeur                       |
+| ---------------------- | ---------------------------- |
+| OS                     | Kubuntu 26.04 (base Ubuntu)  |
+| Bureau                 | KDE Plasma 6 sous Wayland    |
+| Barre                  | Waybar                       |
+| Décoration de fenêtres | Klassy                       |
+| Schéma de couleurs     | Main (inclus dans le dépôt)  |
+| Thème Plasma           | Sweet                        |
+| Icônes                 | Papirus-Dark                 |
+| Police                 | JetBrains Mono Medium 11     |
+| Curseur                | capitaine-cursors-light      |
+| Tiling                 | Krohnkite (script KWin)      |
+| Terminal               | Konsole                      |
+| Spotify                | Spicetify + HackerCyan       |
 
 ---
 
 ## Waybar
 
-The centerpiece of this rice. A fully custom Waybar running on KDE Plasma Wayland — something almost nobody had documented before this.
+La pièce maîtresse de ce rice. Une Waybar entièrement personnalisée qui tourne
+sous KDE Plasma Wayland — ce que presque personne n'avait documenté avant,
+surtout sur une base Debian/Ubuntu.
 
-**Key challenges solved:**
-- Workspace scripts rewritten from Hyprland (`hyprctl`) to KWin DBus (`qdbus6`) — workspaces detect the active desktop and highlight accordingly
-- OLED burn-in prevention via a watcher script that restarts Waybar on every workspace switch
-- Slide-down curtain animation on workspace switch
-- External monitor brightness via DDC/CI (`ddcutil`) without X11
-- ProtonVPN CLI/GUI conflict resolution
-- SuperGFX GPU mode switching (Integrated / Hybrid / dGPU MUX)
+**Principaux défis résolus :**
 
-**Modules:**
-- Clock with calendar tooltip
-- Power menu (rofi)
-- Network with WiFi picker (rofi, signal strength icons)
-- Bluetooth with device type icon, name and battery level
-- Microphone mute indicator
-- ProtonVPN with country picker (60+ countries, Secure Core, P2P, Tor)
-- Workspace switcher (1-4, KWin DBus)
-- SuperGFX GPU mode indicator
-- Battery with ASCII bar, discharge rate, voltage
-- Volume with ASCII bar and audio output switcher
-- Brightness cycling between laptop screen, external monitor and keyboard backlight with keyboard aura picker
+- Scripts de bureaux réécrits du `hyprctl` de Hyprland vers le DBus de KWin
+  (`qdbus6`) — les bureaux détectent le bureau actif et se mettent en surbrillance
+- Prévention de la rémanence OLED via un script watcher qui redémarre Waybar à
+  chaque changement de bureau
+- Animation de glissement (effet rideau) au changement de bureau
+- Luminosité d'un écran externe via DDC/CI (`ddcutil`) sans X11
+- Module média basé sur MPRIS (`playerctl`), avec priorité à Spotify
 
-See `waybar/README.md` for full documentation and install instructions.
+> **Modules ASUS / spécifiques au matériel.** Certains modules dépendent de ton
+> matériel exact (un dGPU + interrupteur MUX, des contrôles firmware propres à
+> ASUS, etc.). Sur le Vivobook V16 ils peuvent ne pas s'appliquer — ils sont
+> optionnels et le script d'installation demande avant de les activer.
+
+**Modules :**
+
+- Horloge avec calendrier en infobulle
+- Menu d'extinction (rofi)
+- Réseau avec sélecteur Wi-Fi (rofi, icônes de force du signal)
+- Bluetooth avec icône de type d'appareil, nom et niveau de batterie
+- Indicateur de coupure du micro
+- Média : lecture en cours via MPRIS (`playerctl`), priorité à Spotify
+- Sélecteur de bureaux (1-4, DBus KWin)
+- Indicateur de mode GPU *(optionnel, ASUS dGPU/MUX uniquement)*
+- Batterie avec barre ASCII, puissance de décharge, tension
+- Volume avec barre ASCII et sélecteur de sortie audio
+- Luminosité cyclant entre écran du portable, écran externe et rétroéclairage
+  clavier *(le sélecteur d'aura clavier est ASUS uniquement)*
+
+Voir `waybar/README.md` pour la documentation complète et les instructions
+d'installation.
+
+---
+
+## Installation — paquets
+
+Kubuntu n'a pas l'AUR : les paquets viennent d'`apt` quand ils existent, et
+quelques composants sont compilés depuis les sources ou installés manuellement.
+
+**Depuis les dépôts Ubuntu :**
+
+```bash
+sudo apt update
+sudo apt install waybar rofi ddcutil papirus-icon-theme fonts-jetbrains-mono
+```
+
+> Le paquet `waybar` des dépôts Ubuntu peut être en retard sur l'amont. Si un
+> module se comporte mal, compile plutôt la dernière version de Waybar depuis
+> les sources.
+
+**Compilés depuis les sources / installés manuellement** (absents des dépôts
+Ubuntu) :
+
+- **Klassy** — voir la section *Klassy* ci-dessous
+- Thème Plasma **Sweet** — à installer via Configuration du système → Obtenir du
+  nouveau contenu, ou depuis le projet d'origine
+- **capitaine-cursors** — à installer depuis les releases d'origine si `apt` ne
+  le propose pas sur ta version
 
 ---
 
 ## Klassy
 
-Klassy is a KDE window decoration that gives precise control over title bar style, button appearance, spacing and borders. The config in `klassy/klassyrc` is my personal setup — minimal title bars with clean borders that match the color scheme.
+Klassy est une décoration de fenêtres KDE qui donne un contrôle précis sur le
+style de la barre de titre, l'apparence des boutons, les espacements et les
+bordures. La config dans `klassy/klassyrc` est mon réglage perso — des barres de
+titre minimales avec des bordures nettes assorties au schéma de couleurs.
 
-**Install:**
+Klassy n'est **pas packagé pour Ubuntu**, il faut donc le compiler depuis les
+sources :
+
 ```bash
-yay -S klassy
+# installe d'abord les dépendances de build KDE/Qt6, puis :
+git clone https://github.com/paulmcauley/klassy
+cd klassy
+./install.sh        # suis les instructions de build du README de Klassy
+```
+
+> Les dépendances de build exactes dépendent de ta version de Plasma/Qt — suis
+> les instructions à jour du dépôt Klassy plutôt qu'une liste de paquets figée.
+
+Applique ensuite la config et active-la :
+
+```bash
+mkdir -p ~/.config/klassy
 cp klassy/klassyrc ~/.config/klassy/klassyrc
 ```
-Then apply in System Settings -> Window Decoration -> Klassy.
+
+Applique dans Configuration du système → Décorations de fenêtres → Klassy.
 
 ---
 
 ## Krohnkite
 
-Krohnkite is a KWin tiling script that adds dynamic tiling to KDE — similar to how tiling works in i3 or Hyprland but running natively inside KWin. Windows tile automatically when you open them and you can drag to resize.
+Krohnkite est un script de tiling KWin qui ajoute le tiling dynamique à KDE —
+proche d'i3 ou Hyprland, mais tournant nativement dans KWin. Les fenêtres se
+placent automatiquement à l'ouverture et tu peux redimensionner par glissement.
 
-**Install:**
+Krohnkite est un `.kwinscript` indépendant de la distribution, donc pas besoin de
+l'AUR — installe la copie incluse dans ce dépôt :
+
 ```bash
-yay -S krohnkite
+kpackagetool6 --type=KWin/Script --install krohnkite/krohnkite
+# ou, manuellement :
 cp -r krohnkite/krohnkite ~/.local/share/kwin/scripts/
 ```
-Then enable in System Settings -> KWin Scripts -> Krohnkite.
+
+Active-le ensuite dans Configuration du système → Gestion des fenêtres → Scripts
+KWin → Krohnkite.
 
 ---
 
-## KDE Configs
+## Configs KDE
 
-The `kde/` folder contains:
+Le dossier `kde/` contient :
 
-| File                    | What it does                                      |
-|-------------------------|---------------------------------------------------|
-| `kdeglobals`            | Global KDE settings - colors, fonts, icon theme  |
-| `kwinrc`                | KWin config - effects, tiling, window rules       |
-| `plasmarc`              | Plasma theme settings                             |
-| `plasmashellrc`         | Panel layout and visibility settings              |
-| `kglobalshortcutsrc`    | All keyboard shortcuts                            |
-| `kscreenlockerrc`       | Lock screen config                                |
+| Fichier              | Rôle                                                  |
+| -------------------- | ----------------------------------------------------- |
+| `kdeglobals`         | Réglages globaux KDE — couleurs, polices, thème d'icônes |
+| `kwinrc`             | Config KWin — effets, tiling, règles de fenêtres      |
+| `plasmarc`           | Réglages du thème Plasma                              |
+| `plasmashellrc`      | Disposition et visibilité des panneaux                |
+| `kglobalshortcutsrc` | Tous les raccourcis clavier                           |
+| `kscreenlockerrc`    | Config de l'écran de verrouillage                     |
 
-**Apply:**
+**Appliquer :**
+
 ```bash
 cp kde/kdeglobals ~/.config/kdeglobals
 cp kde/kwinrc ~/.config/kwinrc
@@ -141,77 +212,123 @@ cp kde/plasmarc ~/.config/plasmarc
 cp kde/plasmashellrc ~/.config/plasmashellrc
 cp kde/kglobalshortcutsrc ~/.config/kglobalshortcutsrc
 ```
-Log out and back in after applying.
+
+Déconnecte-toi puis reconnecte-toi après application.
 
 ---
 
-## Themes
+## Thèmes
 
-The `themes/` folder contains:
+Le dossier `themes/` contient :
 
-- `color-schemes/Main.colors` - the primary color scheme used across the entire setup. Install by copying to `~/.local/share/color-schemes/` and selecting in System Settings -> Colors.
-- `gtk/gtk3-settings.ini` - GTK3 app theming (icon theme, font, cursor)
-- `gtk/gtk4-settings.ini` - GTK4 app theming
+- `color-schemes/Main.colors` — le schéma de couleurs principal utilisé dans tout
+  le setup
+- `gtk/gtk3-settings.ini` — thème des applis GTK3 (icônes, police, curseur)
+- `gtk/gtk4-settings.ini` — thème des applis GTK4
 
-**Install color scheme:**
+**Installer le schéma de couleurs :**
+
 ```bash
+mkdir -p ~/.local/share/color-schemes
 cp themes/color-schemes/Main.colors ~/.local/share/color-schemes/
 ```
-Then apply in System Settings -> Colors & Themes -> Colors -> Main.
 
-**Install GTK settings:**
+Applique ensuite dans Configuration du système → Couleurs et thèmes → Couleurs →
+Main.
+
+**Installer les réglages GTK :**
+
 ```bash
 cp themes/gtk/gtk3-settings.ini ~/.config/gtk-3.0/settings.ini
 cp themes/gtk/gtk4-settings.ini ~/.config/gtk-4.0/settings.ini
 ```
 
-**Install required packages:**
+**Icônes / police (depuis les dépôts Ubuntu) :**
+
 ```bash
-sudo pacman -S papirus-icon-theme
-yay -S capitaine-cursors sweet-kde-theme-git
+sudo apt install papirus-icon-theme fonts-jetbrains-mono
 ```
 
 ---
 
-## Wallpapers
+## Spotify — Spicetify + HackerCyan
 
-The `wallpapers/` folder contains the wallpapers used in the setup. Copy to your wallpapers folder:
+Le dossier `HackerCyan-Spicetify-main/` est le thème HackerCyan pour Spotify,
+appliqué via Spicetify.
+
+**Installer Spicetify** (indépendant de la distribution) :
 
 ```bash
+curl -fsSL https://raw.githubusercontent.com/spicetify/cli/main/install.sh | sh
+```
+
+**Appliquer le thème HackerCyan :**
+
+```bash
+# copie le dossier du thème dans le répertoire Themes de Spicetify
+cp -r HackerCyan-Spicetify-main/HackerCyan ~/.config/spicetify/Themes/
+
+spicetify config current_theme HackerCyan
+spicetify apply
+```
+
+> Ajuste le chemin source pour correspondre au nom réel du dossier de thème dans
+> `HackerCyan-Spicetify-main/`. Si Spotify a été installé en Snap/Flatpak, pointe
+> d'abord Spicetify vers le bon chemin `prefs`/Apps (`spicetify config`).
+
+---
+
+## Fonds d'écran
+
+Le dossier `wallpapers/` contient les fonds d'écran utilisés dans le setup :
+
+```bash
+mkdir -p ~/.local/share/wallpapers
 cp wallpapers/* ~/.local/share/wallpapers/
 ```
 
-Then right click the desktop -> Configure Desktop -> pick the wallpaper.
+Puis clic droit sur le bureau → Configurer le bureau et le fond d'écran → choisis-en
+un.
 
 ---
 
-## Quick Install
+## Installation rapide
 
-Clone the repo and run the Waybar install script to get started:
+Clone le dépôt, copie la config Waybar puis lance l'installeur :
 
 ```bash
-git clone https://github.com/prudhvibungatavula/socrates-KDE ~/socrates-KDE
-cd ~/socrates-KDE/waybar
-./install.sh
+git clone https://github.com/ineedabuff/buff-kde ~/buff-kde
+cp -r ~/buff-kde/waybar ~/.config/waybar
+chmod +x ~/.config/waybar/executable_install.sh
+~/.config/waybar/executable_install.sh
 ```
 
-The install script handles dependencies, auto-detects hardware paths, and sets up systemd services. For the rest of the setup (Klassy, Krohnkite, themes) follow the sections above.
+L'installeur gère les dépendances, détecte automatiquement les chemins matériels
+et met en place les services systemd. Pour le reste du setup (Klassy, Krohnkite,
+thèmes, Spicetify), suis les sections ci-dessus.
 
 ---
 
-## Requirements
+## Prérequis
 
-- Arch Linux, CachyOS, or Manjaro
-- KDE Plasma 6 on Wayland
-- An AUR helper (`yay` or `paru`) for some packages
+- Kubuntu 26.04, ou une autre distribution basée sur Ubuntu/Debian
+- KDE Plasma 6 sous Wayland
+- `apt` pour la plupart des paquets ; quelques composants (Klassy, Sweet,
+  capitaine-cursors) sont compilés ou installés depuis les sources car ils ne
+  sont pas dans les dépôts Ubuntu
 
-> Most things will work on any KDE Wayland setup. ASUS-specific modules (SuperGFX, keyboard aura) are optional and the install script will ask if you have an ASUS laptop.
+> La plupart des choses fonctionnent sur n'importe quel setup KDE Wayland. Les
+> modules spécifiques au matériel (changement de GPU dGPU/MUX, aura clavier) sont
+> optionnels et le script d'installation pose la question.
 
 ---
 
-## OLED Users
+## Utilisateurs OLED
 
-If you are on an OLED display, keep the Waybar watcher service enabled. It restarts Waybar on every workspace switch which cycles the pixels under the bar and prevents burn-in. If you are not on OLED, you can disable it:
+Si tu es sur un écran OLED, garde le service watcher de Waybar activé. Il
+redémarre Waybar à chaque changement de bureau, ce qui fait tourner les pixels
+sous la barre et évite la rémanence. Si tu n'es **pas** sur OLED, tu peux le
+désactiver :
 
 ```bash
 systemctl --user disable waybar-watcher.service
@@ -220,6 +337,10 @@ systemctl --user stop waybar-watcher.service
 
 ---
 
-## Credits
+## Crédits
 
-Waybar config structure originally inspired by [pewdiepie-archdaemon/dionysus](https://github.com/pewdiepie-archdaemon/dionysus). All scripts were rewritten from scratch for KDE Plasma Wayland.
+Ce rice est adapté à Kubuntu / KDE Plasma Wayland depuis
+[prudhvibungatavula/socrates-KDE](https://github.com/prudhvibungatavula/socrates-KDE),
+dont la structure de configuration Waybar s'inspirait à l'origine de
+[pewdiepie-archdaemon/dionysus](https://github.com/pewdiepie-archdaemon/dionysus).
+Scripts et étapes d'installation retravaillés pour une base Debian/Ubuntu.

@@ -15,7 +15,7 @@ Inspiré du rice Arch/Hyprland de PewDiePie, mais reconstruit de zéro pour KDE,
 
 La barre est divisée en trois sections :
 
-**Gauche :** Horloge → Météo → Réseau → Bluetooth → Média
+**Gauche :** Horloge → Météo → Réseau → Bluetooth → Média → OBS
 
 **Centre :** *(vide)*
 
@@ -67,6 +67,16 @@ Lit la lecture de n'importe quel lecteur compatible MPRIS via `playerctl`.
 - Les titres longs sont tronqués ; les caractères `& < >` sont correctement échappés
 
 > Nécessite `playerctl`. Spotify expose MPRIS nativement ; pour Firefox, active `media.hardwaremediakeys.enabled` dans `about:config` si les commandes ne répondent pas.
+
+### Enregistrement OBS
+Déclenche et suit l'enregistrement OBS Studio directement depuis la barre, via le serveur **WebSocket** d'OBS piloté par `obs-cmd` (approche fiable sous Wayland, contrairement aux raccourcis clavier).
+- **OBS fermé / WebSocket injoignable** → module masqué
+- **OBS prêt** → `○ REC` en jaune `#ddff24`
+- **Enregistrement en cours** → `● 00:01:23` en rouge `#f50a1c` clignotant, avec le chrono
+- **Clic gauche** : démarre / arrête l'enregistrement
+- Interrogé toutes les 2 s
+
+> Nécessite OBS Studio ≥ 28 (serveur WebSocket intégré) et l'utilitaire `obs-cmd`. Voir [Module OBS (enregistrement)](#module-obs-enregistrement) pour l'installation et la configuration du port / mot de passe.
 
 ### Bluetooth
 - **La barre affiche** : icône du type d'appareil + nom court + % de batterie avec icône colorée
@@ -127,6 +137,7 @@ Un seul module qui passe d'un écran à l'autre avec le **clic gauche** :
     ├── brightness.sh               # État de luminosité de l'écran actif
     ├── kbd-aura.sh                 # Sélecteur de modes/couleurs aura clavier (ASUS)
     ├── media.sh                    # Module lecture en cours (MPRIS via playerctl)
+    ├── obs.sh                       # État/déclencheur d'enregistrement OBS (obs-cmd)
     ├── volume.sh                   # État volume (barre ASCII + couleur par niveau)
     ├── weather.sh                  # Module météo (wttr.in, icône dynamique)
     ├── waybar-watcher.sh           # Watcher de changement de bureau KWin (SIGUSR2)
@@ -173,8 +184,8 @@ sudo ln -sf /usr/lib/qt6/bin/qdbus /usr/local/bin/qdbus6
 
 ### 1. Cloner et copier
 ```bash
-git clone https://github.com/prudhvibungatavula/socrates-KDE ~/socrates-KDE
-cp -r ~/socrates-KDE/waybar ~/.config/waybar
+git clone https://github.com/ineedabuff/buff-kde ~/buff-kde
+cp -r ~/buff-kde/waybar ~/.config/waybar
 ```
 
 ### 2. Lancer l'installeur (recommandé)
@@ -241,6 +252,28 @@ systemctl --user disable --now waybar-watcher.service
 ```
 Waybar restera lancé en permanence sans se recharger.
 
+### Module OBS (enregistrement)
+Le module pilote OBS via son serveur WebSocket et l'utilitaire `obs-cmd`.
+
+**1. Installer `obs-cmd`** (pas dans apt — binaire à télécharger) :
+```bash
+cd /tmp
+curl -L https://github.com/grigio/obs-cmd/releases/latest/download/obs-cmd-x64-linux.tar.gz | tar xz
+chmod +x obs-cmd && sudo mv obs-cmd /usr/local/bin/
+```
+Repli si l'archive change de nom : `cargo install --git https://github.com/grigio/obs-cmd` puis `sudo ln -sf ~/.cargo/bin/obs-cmd /usr/local/bin/obs-cmd`.
+
+**2. Activer le serveur WebSocket dans OBS** : *Outils → Réglages du serveur WebSocket → Activer*. Note le **port** (4455 par défaut) et le **mot de passe** (« Afficher les informations de connexion »).
+
+**3. Tester** (OBS ouvert) :
+```bash
+obs-cmd --websocket obsws://localhost:4455/secret info
+```
+
+**Port / mot de passe différents** : reporte-les à **deux** endroits — la variable `WS=` en haut de `scripts/obs.sh`, et la ligne `on-click` du module `custom/obs` dans `config`. Si l'authentification est désactivée, utilise `obsws://localhost:4455` (sans mot de passe).
+
+**Déplacer le module** : il est dans `modules-left`, après `custom/media`. Déplace `"custom/obs"` où tu veux dans `config` (par ex. dans `modules-right`).
+
 ### Choisir le lecteur média suivi par la barre
 Par défaut `media.sh` privilégie Spotify puis le lecteur le plus récent. Pour le fixer, édite `scripts/media.sh` :
 ```bash
@@ -265,10 +298,11 @@ player="firefox"   # à la place du bloc de détection automatique
 - La date française nécessite la locale `fr_FR.UTF-8` (ou `fr_CA.UTF-8`) générée **et** le drapeau `L` dans le format de l'horloge.
 - Les icônes (météo, etc.) sont des glyphes Nerd Font / Material Design : assure-toi que **JetBrainsMono Nerd Font** est installée, sinon elles apparaissent en carrés.
 - Le rétroéclairage et l'aura du clavier ne concernent que les portables **ASUS** ; le reste fonctionne sur n'importe quel matériel.
+- Le module OBS reste **masqué tant qu'OBS n'est pas lancé** avec le serveur WebSocket activé ; il nécessite `obs-cmd` (hors apt). Voir [Module OBS](#module-obs-enregistrement).
 - Testé sur KDE Plasma 6 avec KWin Wayland (Kubuntu 26.04).
 
 ---
 
 ## Crédits
 
-Structure de configuration inspirée de [pewdiepie-archdaemon/dionysus](https://github.com/pewdiepie-archdaemon/dionysus) : scripts réécrits pour KDE Plasma Wayland, portés sur Debian/Ubuntu, puis personnalisés.
+Fait partie de [ineedabuff/buff-kde](https://github.com/ineedabuff/buff-kde). Configuration dérivée de [prudhvibungatavula/socrates-KDE](https://github.com/prudhvibungatavula/socrates-KDE), elle-même inspirée de [pewdiepie-archdaemon/dionysus](https://github.com/pewdiepie-archdaemon/dionysus) : scripts réécrits pour KDE Plasma Wayland, portés sur Debian/Ubuntu, puis personnalisés.

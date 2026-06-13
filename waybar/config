@@ -18,7 +18,8 @@
     "custom/weather",
     "network",
     "custom/bt-status",
-    "custom/media"
+    "custom/media",
+    "custom/obs"
   ],
 
   "modules-center": [],
@@ -171,6 +172,16 @@
     "on-click": "playerctl play-pause",
     "on-scroll-up": "playerctl next",
     "on-scroll-down": "playerctl previous"
+  },
+
+  // ── OBS (enregistrement via obs-websocket) ───────────────────────
+  "custom/obs": {
+    "exec": "~/.config/waybar/scripts/obs.sh",
+    "return-type": "json",
+    "interval": 2,
+    "format": "{}",
+    "tooltip": true,
+    "on-click": "obs-cmd --websocket obsws://localhost:4455/secret recording toggle"
   },
 
   // ── Weather (wttr.in — Montréal) ─────────────────────────────────
